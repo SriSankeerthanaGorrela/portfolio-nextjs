@@ -16,8 +16,12 @@ function Sidebar() {
     const targetElement = document.getElementById(targetId);
     if (targetElement) {
       targetElement.scrollIntoView({ behavior: "smooth" });
+     // Delay closing sidebar to allow scroll to complete
+      setTimeout(() => setIsOpen(false), 400);
+    } else {
+      setIsOpen(false);
     }
-    setIsOpen(false); // close sidebar on item click
+   // close sidebar on item click
   };
 
   return (

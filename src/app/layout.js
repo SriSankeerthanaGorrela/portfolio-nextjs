@@ -1,10 +1,17 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { Figtree } from 'next/font/google'
 import "./globals.css";
+import Sidebar from "./Sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
+const figtree = Figtree({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'], // choose what you need
+  variable: '--font-figtree' // optional: for Tailwind use
+})
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -20,9 +27,14 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${figtree.variable} flex h-screen overflow-hidden bg-black`}
       >
-        {children}
+         <main className="flex-1 overflow-y-auto md:pr-60">{children}</main>
+
+        {/* Fixed Sidebar on the right */}
+        <aside className="md:w-68 h-screen fixed right-0 top-0 z-50 bg-black">
+          <Sidebar />
+        </aside>
       </body>
     </html>
   );

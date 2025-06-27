@@ -1,11 +1,13 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Menu, X } from "lucide-react";
 
 function Sidebar() {
-  const items = ["About", "Education", "Skills", "Projects", "Contact"];
+  const items = ["About", "Education", "Skills", "Projects", "Experience", "Contact"];
   const [activeSection, setActiveSection] = useState("About");
-  const [isOpen, setIsOpen] = useState(false); // Sidebar visibility
+  const [isOpen, setIsOpen] = useState(false);
+  const observerRef = useRef(null);
+
   const activeIndex = items.indexOf(activeSection);
   const fillStart = (activeIndex / items.length) * 100;
   const fillEnd = ((activeIndex + 1) / items.length) * 100;
@@ -16,49 +18,48 @@ function Sidebar() {
     const targetElement = document.getElementById(targetId);
     if (targetElement) {
       targetElement.scrollIntoView({ behavior: "smooth" });
-     // Delay closing sidebar to allow scroll to complete
       setTimeout(() => setIsOpen(false), 400);
     } else {
       setIsOpen(false);
     }
-   // close sidebar on item click
   };
+
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: "-30% 0px -50% 0px", // ✅ updated margins
+      threshold: 0.1,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          const formatted = id.charAt(0).toUpperCase() + id.slice(1);
+          setActiveSection(formatted);
+        }
+      });
+    }, observerOptions);
+
+    // Observe each section
+    items.forEach((item) => {
+      const section = document.getElementById(item.toLowerCase());
+      if (section) observer.observe(section);
+    });
+
+    observerRef.current = observer;
+
+    return () => {
+      if (observerRef.current) observerRef.current.disconnect();
+    };
+  }, []);
 
   return (
     <>
-      {/* Hamburger Menu - visible only on small screens */}
-      <div className="md:hidden fixed top-4 right-5 z-50">
-        <button onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? (
-            <X className="w-6 h-6 text-violet-700" />
-          ) : (
-            <Menu className=" w-6 h-6 text-violet-700" />
-          )}
-        </button>
-      </div>
-
-      {/* Sidebar */}
-      {/* Mobile sidebar: appears over content when open */}
-      {isOpen && (
-        <div className="sm:hidden fixed top-0 my-1 left-0 h-70 w-40 bg-black z-40 shadow-lg p-6 flex flex-col gap-5">
-          {items.map((item) => (
-            <button
-              key={item}
-              onClick={() => handleClick(item)}
-              className={`text-sm font-semibold transition duration-200 ${
-                activeSection === item ? "text-gray-400" : "text-violet-700"
-              }`}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Desktop sidebar */}
+      {/* Desktop Sidebar */}
       <div className="hidden sm:flex mt-20 gap-10 pr-10 pt-5">
         {/* Progress Line */}
-        <div className="relative h-[300px] w-1 rounded-full">
+        <div className="relative h-[400px] w-1 rounded-full">
           <div
             className="absolute w-full bg-purple-700 transition-all duration-300"
             style={{
